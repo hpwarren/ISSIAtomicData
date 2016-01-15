@@ -1,0 +1,6 @@
+# inputs for chianti_ratio_mc, format should be obvious!
+# ion | comma separated list of wavelengths
+fe_12 | 192.394, 193.509, 195.119, 186.887, 196.640
+fe_13 | 200.021, 201.121, 203.152, 203.826, 202.044
+o_7   | 21.601, 21.803, 22.098
+o_8   | 18.969
