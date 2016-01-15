@@ -6,7 +6,7 @@ concept to illustrate the procedure and to provide example data files.
 
 See chianti_ratio_mc.md for information.
 
-* chianti_ratio_mc.pro -> drive routine
+* chianti_ratio_mc.pro -> driver routine
 * setup_ion.pro -> modified CHIANTI routine for perturbing collision strengths
 * read_wgfa2.pro -> modified CHIANTI routine for perturbing A values
 * nrl_save_hdf.pro -> IDL routine for writing HDF5
