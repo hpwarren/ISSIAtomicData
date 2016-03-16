@@ -50,9 +50,10 @@ pro chianti_ratio_mc, calc_t=calc_t
   logn  = logn1 + dlogn*findgen(nlogn)  
 
   ;; --- these variables are read by setup_ion.pro and read_wgfa2.pro
-  setenv, 'CHIANTI_PERTURB_SPL1=0.1' 
-  setenv, 'CHIANTI_PERTURB_SPL2=0.2'
-  setenv, 'CHIANTI_PERTURB_AVAL=0.1'
+  PERTURB = 0.30
+  setenv, 'CHIANTI_PERTURB_SPL1='+trim(PERTURB)
+  setenv, 'CHIANTI_PERTURB_SPL2='+trim(PERTURB)
+  setenv, 'CHIANTI_PERTURB_AVAL='+trim(PERTURB)
 
   ;; --- number of realizations to be run, 100 is a lot for Fe XII and Fe XIII!
   nsim = 100
@@ -161,11 +162,13 @@ pro chianti_ratio_mc, calc_t=calc_t
   CHIANTI_PERTURB_SPL2 = float(getenv('CHIANTI_PERTURB_SPL2'))
   CHIANTI_PERTURB_AVAL = float(getenv('CHIANTI_PERTURB_AVAL'))
 
-  opf = sngl_ion+'.monte_carlo.h5'
+  opf = sngl_ion+'.monte_carlo.'+trim(fix(100*PERTURB), '(i2.2)')+'.h5'
   time_stamp = systime(0)
 
-  nrl_save_hdf, CHIANTI_PERTURB_SPL1=CHIANTI_PERTURB_SPL1, CHIANTI_PERTURB_SPL2=CHIANTI_PERTURB_SPL2, $
-                CHIANTI_PERTURB_AVAL=CHIANTI_PERTURB_AVAL, ioneq_file=ioneq_file, $
+  nrl_save_hdf, CHIANTI_PERTURB_SPL1=CHIANTI_PERTURB_SPL1, $
+                CHIANTI_PERTURB_SPL2=CHIANTI_PERTURB_SPL2, $
+                CHIANTI_PERTURB_AVAL=CHIANTI_PERTURB_AVAL, $
+                ioneq_file=ioneq_file, $
                 logt=logt, logn=logn, logt_max=logt_max, nsim=nsim, $
                 emissivity=emissivity, transition=transition, wavelength=wavelength, $
                 emissivity_t=emissivity_t, text=text, $
