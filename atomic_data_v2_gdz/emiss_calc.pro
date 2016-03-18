@@ -253,10 +253,11 @@
 ;       V.32, 25-Feb-2014, Peter Young
 ;               Added /no_calc to emiss_calc.
 ;
-;       v.33, 3 March 2016, Giulio Del Zanna, added two keywords to
+;       v.33, 3 March 2016, Giulio Del Zanna (GDZ), added two keywords to
 ;              pass to setup_ion to allow for random variations of the rates.
+;       v.34, 7 March 2016, GDZ, added keyword normal
 ;
-; VERSION     :   33, 
+; VERSION     :   34 
 ;
 ;-
 
@@ -268,7 +269,8 @@ FUNCTION  EMISS_CALC, IZ, ION, TEMP=TEMP, DENS=DENS, RADTEMP=RADTEMP, $
                       NO_SETUP=NO_SETUP, SUM_MWL_COEFFS=SUM_MWL_COEFFS, $
                       RADFUNC=RADFUNC, NO_CALC=NO_CALC,$
                       add_uncertainties=add_uncertainties,$
-                      default_uncertainty=default_uncertainty
+                      default_uncertainty=default_uncertainty,$
+                      normal=normal
 
 
 
@@ -307,7 +309,8 @@ gname = name
 
 setup_ion,name,-1,-1,wvltst,lvl1,lvl2,wvl1,gf1,a_value1,path=path, $
      noprot=noprot,add_uncertainties=add_uncertainties,$
-                      default_uncertainty=default_uncertainty
+          default_uncertainty=default_uncertainty,$
+          normal=normal
 
 IF NOT keyword_set(no_setup) OR n_elements(abund) EQ 0 OR $
      n_elements(ioneq) EQ 0 THEN BEGIN

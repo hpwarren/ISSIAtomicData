@@ -19,17 +19,7 @@ pro fe_13_fit_intensities_plot, ps=ps
   xr = [9.0, 10.0]
   yr = [8.0, 10.0]
   
-  for i=0, n_elements(files)-1 do begin
-    res = results[i]
-    if i eq 0 then begin
-      plot, res[*, 0], res[*, 1], psym=8, xrange=xr, yrange=yr, $
-            xtitle='Log Electron Density', ytitle='Log ds', /nodata
-    endif
-    color = i + 2
-    oplot, res[*, 0], res[*, 1], psym=8, color=color
-  endfor
-
-  plots, res0[0], res0[1], psym=8, color=7, symsize=2.5
+  ;; --- plot densities
 
   for i=0, n_elements(files)-1 do begin
     res = results[i]
@@ -41,14 +31,29 @@ pro fe_13_fit_intensities_plot, ps=ps
     oplot, res[*, 2], res[*, 0], psym=8, color=color
   endfor
 
-  plots, res0[2], res0[0], psym=8, color=7, symsize=2.5
+  plots, res0[2], res0[0], psym=8, color=8, symsize=1.5
 
+  ;; --- plot path lengths (emission measures)
+
+  for i=0, n_elements(files)-1 do begin
+    res = results[i]
+    if i eq 0 then begin
+      plot, res[*, 0], res[*, 1], psym=8, xrange=xr, yrange=yr, $
+            xtitle='Log Electron Density', ytitle='Log ds', /nodata
+    endif
+    color = i + 2
+    oplot, res[*, 0], res[*, 1], psym=8, color=color
+  endfor
+
+  plots, res0[0], res0[1], psym=8, color=8, symsize=1.5
+
+  ;; --- plot histograms of densities
 
   r = results.ToArray(dim=1)
   c = r[*, 2]
   m = where(c lt 250)
   
-  bs = 0.05
+  bs = 0.025
   hist = histogram(r[m, 0], binsize=bs, locations=xhist)
   xhist += bs/2.
   plot, xhist, hist, psym=10, xrange=xr, xtitle='Log Electron Density', $
@@ -56,7 +61,9 @@ pro fe_13_fit_intensities_plot, ps=ps
   print, median(r[m, 0]), res0[0]
   print, stddev(r[m, 0])
 
-  bs = 0.05
+  ;; --- plot histograms of path lengths
+
+  bs = 0.025
   hist = histogram(r[m, 1], binsize=bs, locations=xhist)
   xhist += bs/2.
   plot, xhist, hist, psym=10, xrange=yr, xtitle='Log ds', $

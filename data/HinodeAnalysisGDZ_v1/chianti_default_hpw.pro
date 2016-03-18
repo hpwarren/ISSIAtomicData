@@ -23,21 +23,15 @@ pro compute_chianti_factor, logn, emissivity, chianti_factor, logt_max
 
 end
 
-pro chianti_default_hpw, ps=ps, hpw=hpw
+pro chianti_default_hpw, ps=ps
 
   ;; --- read GDZ file
 
-  perturb_file = 'fe_13.monte_carlo.h5'
+  perturb_file = 'fe_13.monte_carlo_normal_nsim=1000.h5'
   nrl_restore_hdf, logn=logn, emissivity=emissivity_perturb, wavelength=wavelength_perturb, $
                    file=perturb_file
 
-  if keyword_set(hpw) then begin
-    perturb_file = '/Users/hpw/Desktop/ISSIAtomicData/fe_13.monte_carlo.20.h5'
-    nrl_restore_hdf, logn=logn, emissivity=emissivity_perturb, wavelength=wavelength_perturb, $
-                     file=perturb_file
-  endif
-
-  ;; --- compute CHIANTI
+  ;; --- compute default versions of CHIANTI emissivities
 
   sngl_ion = 'fe_13'
 
@@ -52,11 +46,10 @@ pro chianti_default_hpw, ps=ps, hpw=hpw
   emiss = emiss_calc(iz, ion, temp=logt_max, dens=logn, ioneq_file=ioneq_file, /quiet)
   emiss = emiss[where(emiss.flag eq 0)]
 
-  ;; ---
+  ;; --- plot default and perturbed atomic data
 
-  hpw_setup_xwindow, 1200, 600, 1
-  if keyword_set(hpw) then s = '.hpw' else s = '.gdz'
-  hpw_setup_ps, ps=ps, w=11.0, h=6.0, /color, file='chianti_default'+s
+  hpw_setup_ps, ps=ps, w=11.0, h=6.0, /color, file='chianti_default_hpw'
+  hpw_setup_xwindow, 1200, 600, 1  
   hpw_thicken_lines
   linecolors
   pos = plot_pos(3, 2, /xtitle, /ytitle, spacing=[8, 5, 2, 2])
@@ -67,8 +60,6 @@ pro chianti_default_hpw, ps=ps, hpw=hpw
     wvl_list = wavelength_perturb[i]
     dlambda = 0.1
     match = where(abs(emiss.lambda-wvl_list) lt dlambda, n_nearby)
-    help, match
-    help, /str, emiss[match]
     
     ;; --- sum the relevant transitions
     nlogn = n_elements(logn) 
@@ -89,10 +80,8 @@ pro chianti_default_hpw, ps=ps, hpw=hpw
           ytitle='Emissivity', /noerase, xrange=[8, 10], title=title
     
     m = where(wavelength_perturb eq wvl_list)
-    print, wavelength_perturb[m[0]], wvl_list
     dim = size(emissivity_perturb, /dim)
     n_perturb = dim[0]
-    help, emissivity_perturb
     for k=0, n_perturb-1 do begin
       oplot, logn, reform(emissivity_perturb[k, *, m[0]]), linestyle=1
     endfor

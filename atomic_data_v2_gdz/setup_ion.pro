@@ -145,7 +145,7 @@
 ;       v.9, 27-Jun-2014, Peter Young
 ;            Modified how splstr is used (retain the data, info tags).
 ;
-;       v.10, 3 March 2016, Giulio Del Zanna
+;       v.10, 3 March 2016, Giulio Del Zanna (GDZ)
 ;             added the option to read uncertainty files and perform a 
 ;             random variation of the rates, the A-values and the
 ;             collision strengths. We modify the scaled Upsilons since
@@ -160,7 +160,11 @@
 ;             If no values are found, a default_uncertainty value is
 ;             used (by default it is set to 30%). 
 ;
-; VERSION     :   10
+;       v.11, 7 March 2016, GDZ, added keyword normal
+;       v.12, 16 March 2016, GDZ, fixed a major bug.
+;
+;
+; VERSION     :   12
 ;
 ;-
 
@@ -168,7 +172,7 @@
 PRO setup_ion,ions,wvlmin,wvlmax,wvltst,lvl1,lvl2,wvl1,gf1,a_value1, $
               path=path, noprot=noprot, all=all, anylines=anylines, $
               add_uncertainties=add_uncertainties,$
-              default_uncertainty=default_uncertainty
+              default_uncertainty=default_uncertainty, normal=normal
 
 
 COMMON elvlc,l1a,term,conf,ss,ll,jj,ecm,eryd,ecmth,erydth,eref
@@ -240,23 +244,29 @@ IF wvltst GT 0 THEN BEGIN
          upper=fix(reform(da.field1[1,*]))
          perc=reform(da.field1[2,*])
          
+         ori_a_value1=a_value1
+         
          ind2 = where(wvl1 NE 0., nnl)
          if nnl eq 0 then message, 'Error ! no lines ??! '
          
+         if keyword_set(normal) then rnd=randomn(seed, nnl) else $
          rnd = -1.+2*randomu(seed, nnl)
          
          for ii=0L,nnl-1 do begin 
             
 ; check if the uncertainty is present, otherwise use the  default
             ind=where(lower eq lvl1[ind2[ii]] and upper eq lvl2[ind2[ii]] ,nn)
-            if nn eq 1 then  unc=perc[ind]  else if nn eq 0 then unc=default_uncertainty
+            if nn eq 1 then  unc=perc[ind[0]]  else if nn eq 0 then unc=default_uncertainty
             
-            a_value1[ind2[ii]]=a_value1[ind2[ii]]*(1. + rnd[ii]*unc/100.)
+            a_value1[ind2[ii]]=a_value1[ind2[ii]]*((1. + unc/100.*rnd[ii]) > 0.01) 
             
          endfor 
          
       endelse       
    endif 
+   
+; plot_oo, ori_a_value1, a_value1, psym=6, syms=0.3, xr=[1, 1e12], yr=  [1, 1e12] 
+; plot, a_value1/ ori_a_value1,psym=6, yr=[0,2] 
    
    
 ;------- end of GDZ addition here ------------------------------------------
@@ -309,6 +319,9 @@ IF wvltst GT 0 THEN BEGIN
    
    if keyword_set(add_uncertainties) then begin      
       
+      
+      ori_splups=splstr.data
+      
 ; read the uncertainty file. search in the working directory.
       
       if not file_exist('ups_sigma.txt') then $
@@ -319,29 +332,32 @@ IF wvltst GT 0 THEN BEGIN
          upper=fix(reform(da.field1[1,*]))
          perc=reform(da.field1[2,*])
          
-                                ; this is a distribution between -1 and +1 
-         rnd = randomn(seed, splstr.info.ntrans)
+         if keyword_set(normal) then rnd=randomn(seed, nnl) else $
+; this is a uniform  distribution between -1 and +1 
+         rnd = -1.+2*randomu(seed,splstr.info.ntrans) 
          
 ; this is a different distribution 
 ;   randomn(seed, splstr.info.ntrans)
-
-         for ii=0L,splstr.info.ntrans-1 do begin
+         
+         
+         for ii=0L,splstr.info.ntrans-1 do begin &$
             
 ; check if the uncertainty is present, otherwise use the  default
-            ind=where(lower eq splstr.data[ii].lvl1 and upper eq splstr.data[ii].lvl2 ,nn)
-            if nn eq 1 then  unc=perc[ind]  else if nn eq 0 then unc=default_uncertainty
-            ;; if nn eq 1 then print, nn, splstr.data[ii].lvl1, lower[ind], splstr.data[ii].lvl2,
-            ;; upper[ind], unc, format='(i5,4i6,f10.1)'
+            ind=where(lower eq splstr.data[ii].lvl1 and upper eq splstr.data[ii].lvl2 ,nn) &$
+            if nn eq 1 then  unc=perc[ind[0]]  else if nn eq 0 then unc=default_uncertainty &$
             
-; the -1 is  for missing data, so don't overwrite
-            good = where(splstr.data[ii].spl ge 0, n_good)
+            good = where(splstr.data[ii].spl gt 0, n_good)
+            
             if n_good gt 0 then splstr.data[ii].spl[good] = $
-               splstr.data[ii].spl[good]*(1. + rnd[ii]*float(unc)/100.)
+               splstr.data[ii].spl[good]*((1. + unc/100.*rnd[ii]) > 0.01 ) &           
             
-          endfor
+            endfor 
+                        
+         endelse        
+      
 
-      endelse       
-   endif 
+endif   
+   
    
    
 ENDIF 

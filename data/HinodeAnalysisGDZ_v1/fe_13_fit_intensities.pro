@@ -129,7 +129,7 @@ pro fe_13_fit_intensities
   ;;  now read GDZ perturbed CHIANTI atomic data and fit intensities. Assume that the density scale
   ;;  is the same
 
-  perturb_file = 'fe_13.monte_carlo.h5'
+  perturb_file = 'fe_13.monte_carlo_normal_nsim=1000.h5'
   nrl_restore_hdf, emissivity=emissivity_perturb, wavelength=wavelength, file=perturb_file
 
   nwave = n_elements(wavelength) 
