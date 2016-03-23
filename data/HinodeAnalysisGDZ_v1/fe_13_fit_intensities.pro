@@ -94,10 +94,14 @@ pro fe_13_fit_intensities
 
   compute_chianti_factor, logn, emissivity0, chianti_factor, logt_max
 
+  nrl_save_hdf, logn=logn, logt_max=logt_max, chianti_factor=chianti_factor, $
+                file='chianti_factor.fe13.h5'
+
   ;; -----------------------------------------------------------------------------------------------
   ;; fit with the default CHIANTI data
 
   mx = max(intensities[*, 2], p)
+  print, p
   ints = reform(intensities[p, *])
   err = reform(intensities_error[p, *])
 
@@ -138,6 +142,7 @@ pro fe_13_fit_intensities
     m = where(wavelength eq wavelength0[i])
     wave_index[i] = m[0]
   endfor
+  
  
   n_perturb = (size(emissivity_perturb, /dim))[0]
   res = fltarr(n_perturb, 3)
@@ -170,10 +175,12 @@ pro fe_13_fit_intensities
     for i=0, n_elements(model)-1 do begin
       var1 = abs(model[i]-ints[i])/err[i]
       var2 = 100*abs(model[i]-ints[i])/ints[i]
-      print, wavelength[i], model[i], ints[i], err[i], var1, var2, format='(f10.3, 4f10.2, f10.1)'
+      print, wavelength0[i], model[i], ints[i], err[i], var1, var2, format='(f10.3, 4f10.2, f10.1)'
     endfor
 
     res[n, *] = [fit[0], fit[1], chi2]
+
+    if n le 5 then pause
 
   endfor
 

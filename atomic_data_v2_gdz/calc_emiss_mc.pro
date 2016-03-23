@@ -50,7 +50,7 @@ pro calc_emiss_mc, sngl_ion, wvl_list, dl=dl, nsim=nsim, normal=normal, $
     ;; --- a default case
     sngl_ion = 'fe_13'
     wvl_list = [200.021, 201.121, 203.152, 203.826, 202.044]
-    nsim = 1000
+    nsim = 1
     normal = 1
   endif
 
