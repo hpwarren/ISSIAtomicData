@@ -46,7 +46,7 @@ eis_ints <- h5read(fname_eis, 'intensities')
 eis_err <- h5read(fname_eis, 'intensities_error')
 eis_wave <- h5read(fname_eis, 'wavelength')
 
-# another small problem, the observed intensities and the emsisivites are not order the same way!
+# another small problem, the observed intensities and the emsisivites are not ordered the same way!
 # use index to access the observed eis intensities
 index <- c(1,2,4,5,3)
 print("Wavelengh Check")
@@ -71,6 +71,7 @@ print(sprintf("log_ds = %6.2f", this_param[2]))
 print(sprintf("%10s %10s %10s %10s", "WAVE", "MODEL", "OBS", "ERR"))
 for (j in 1:n_lines)
 {
-  s = sprintf("%10.3f %10.2f %10.2f %10.2f", wavelength[j], ints_model[j], this_eis_ints[j], this_eis_err[j])
+  s = sprintf("%10.3f %10.2f %10.2f %10.2f", wavelength[j], ints_model[j], this_eis_ints[j],
+		this_eis_err[j])
   print(s)
 }
