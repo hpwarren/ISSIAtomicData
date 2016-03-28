@@ -1,23 +1,13 @@
 # ISSIAtomicData
 
 The goal here is to compute different realizations of the CHIANTI atomic data for use in
-interpreting observed density sensitive line ratios. The calculations so far are simply proof of
-concept to illustrate the procedure and to provide example data files.
+interpreting observed density sensitive line ratios. Here is a description of the current
+directories:
 
-See chianti_ratio_mc.md for information.
-
-atomic_data_v1_hpw: First version of perturbed atomic data
-
-* chianti_ratio_mc.pro -> driver routine
-* setup_ion.pro -> modified CHIANTI routine for perturbing collision strengths
-* read_wgfa2.pro -> modified CHIANTI routine for perturbing A values
-* nrl_save_hdf.pro -> IDL routine for writing HDF5
-* nrl_restore_hdf.pro -> IDL routine for reading HDF5
-* test_chianti_mc.py -> test python script for reading HDF5 files
-* test_chianti_mc.R -> test R script for reading HDF5 files
-* o_7.monte_carlo.h5 -> 100 realizations for O VII (selected lines)
-* o_8.monte_carlo.h5 -> 100 realizations for O VIII (selected lines)
-
-* fe_13.monte_carlo.XX.h5 -> 100 realizations for Fe XIII (selected lines) with 1 sigma = XX.
-
-atomic_data_v2_gdz: Second version of perturbed atomic data
+* atomic_data_v1_hpw -> HPW's calculations with uniform uncertainties
+* atomic_data_v2_gdz -> GDZ's calculations with non-uniform uncertainties (current)
+* chianti_errors_fe_13 -> GDZ's work on Fe XIII
+* chianti_errors_o_7 -> GDZ and CB's work on O VII
+* data/HinodeAnalysisGDZ_v1 -> The analysis of EIS Fe XIII spectra with GDZ atomic data (current)
+* data/HinodeAnalysisHPW_v1 -> Older analysis with HPW atomic data
+* TestR -> A test R script for reading various files
