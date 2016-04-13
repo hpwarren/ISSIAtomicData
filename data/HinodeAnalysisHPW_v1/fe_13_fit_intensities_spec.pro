@@ -14,7 +14,7 @@ pro fe_13_fit_intensities_spec, ps=ps
   log_em = 2*log_n + log_ds
   ioneq_path = concat_dir(!xuvtop, 'ioneq')
   ioneq_name = concat_dir(ioneq_path, 'chianti.ioneq')
-  abund_path = concat_dir(!xuvtop, 'abundance') 
+  abund_path = concat_dir(!xuvtop, 'abundance')
   abund_name = concat_dir(abund_path, 'sun_coronal_1992_feldman.abund')
 
   wmin  = 190.0
@@ -24,11 +24,11 @@ pro fe_13_fit_intensities_spec, ps=ps
   file = 'fe_13_fit_intensities_spec.idl'
   if not(file_exist(file)) then begin
     ch_synthetic, wmin, wmax, output=output,$
-                 density=10.0^log_n, $
-                 logt_isothermal=log_t, $
-                 logem_isothermal=log_em,$
-                 ioneq_name=ioneq_name
-    
+                  density=10.0^log_n, $
+                  logt_isothermal=log_t, $
+                  logem_isothermal=log_em,$
+                  ioneq_name=ioneq_name
+
     make_chianti_spec, output, lambda, o,$
                        bin_size=dwave,$
                        abund_name=abund_name,$
@@ -37,7 +37,7 @@ pro fe_13_fit_intensities_spec, ps=ps
     save, output, o, file=file
   endif
   restore, file
-  
+
   ch_wave = o.lambda
   ch_spec = o.spectrum*0.85
   fwhm = 4*3*dwave
@@ -55,9 +55,9 @@ pro fe_13_fit_intensities_spec, ps=ps
         xtitle='Wavelength ('+angstrom+')'
   oplot_err, wave, spec, yerr=err, psym=3
 
-  oplot, ch_wave, ch_spec, color=2, thick=3
+  ;;oplot, ch_wave, ch_spec, color=2, thick=3
 
-  w = [200.021, 201.121, 203.152, 203.826, 202.044]  
+  w = [200.021, 201.121, 203.152, 203.826, 202.044]
   for i=0, n_elements(w)-1 do begin
     plots, w[i]+0.2*[-1,1], !y.crange[1], thick=6, color=2
     new = convert_coord(w[i], !y.crange[1], /data, /to_normal)

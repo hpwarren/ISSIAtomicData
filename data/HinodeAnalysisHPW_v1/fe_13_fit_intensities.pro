@@ -99,7 +99,7 @@ pro fe_13_fit_intensities, ps=ps
   ;; -----------------------------------------------------------------------------------------------
   ;; --- Fit with the perturbed atomic data
 
-  all_perturb_files = file_search('../../fe_13.monte_carlo.*.h5', count=nfiles)
+  all_perturb_files = file_search('../../atomic_data_v1_hpw/fe_13.monte_carlo.*.h5', count=nfiles)
   for i=0, nfiles-1 do begin
     print, i+1, '  ', all_perturb_files[i]
   endfor

@@ -50,13 +50,13 @@ pro chianti_ratio_mc, calc_t=calc_t
   logn  = logn1 + dlogn*findgen(nlogn)  
 
   ;; --- these variables are read by setup_ion.pro and read_wgfa2.pro
-  PERTURB = 0.30
+  PERTURB = 0.10
   setenv, 'CHIANTI_PERTURB_SPL1='+trim(PERTURB)
   setenv, 'CHIANTI_PERTURB_SPL2='+trim(PERTURB)
   setenv, 'CHIANTI_PERTURB_AVAL='+trim(PERTURB)
 
   ;; --- number of realizations to be run, 100 is a lot for Fe XII and Fe XIII!
-  nsim = 100
+  nsim = 1000
 
   ;; --- transitions within dw_max are included in the emissivity, accounting for blends
   dw_max = 0.1
@@ -77,7 +77,7 @@ pro chianti_ratio_mc, calc_t=calc_t
 
   for k=0, nsim-1 do begin
 
-    print, k+1, ' of ', nsim, format='(i3, a4, i3)'
+    print, k+1, ' of ', nsim, format='(i3, a4, i4.4)'
 
     tic
     ;; --- compute for a range of temperatures
