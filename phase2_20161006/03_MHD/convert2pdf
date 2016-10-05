@@ -1,0 +1,7 @@
+#!/bin/csh -f
+
+if ($#argv == 1) then
+   set newFile = `echo $1 | sed s/.md/.pdf/g`
+   echo "creating " $newFile   
+   pandoc $1 -V geometry:margin=1in -V urlcolor:blue -f markdown -t latex -o $newFile
+endif	
