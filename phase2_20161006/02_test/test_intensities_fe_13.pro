@@ -42,7 +42,7 @@ pro test_intensities_fe_13
 
   n_intensities = 1000
   logn_obs = 8.5 + 2.5*randomu(seed, n_intensities)
-  logn_obs = logn_obs[sort(logn_obs)]
+;;  logn_obs = logn_obs[sort(logn_obs)]
   p_obs = 2*!boltzmann*10.0^(logn_obs + logt_max)
 
   exposure = 60.0

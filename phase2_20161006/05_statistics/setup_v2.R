@@ -14,6 +14,5 @@ nprior <- dims[1]
 ngrid <- dims[2]
 nlines <- dims[3]
 
-print(nprior)
-print(ngrid)
-print(nlines)
+logn_model <- h5read(fname, "logn_obs")
+ds_model <- log10( h5read(fname, "ds_obs") )
