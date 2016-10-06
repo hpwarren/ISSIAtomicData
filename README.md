@@ -4,6 +4,10 @@ The goal here is to compute different realizations of the CHIANTI atomic data fo
 interpreting observed density sensitive line ratios. Here is a description of the current
 directories:
 
+* phase2_20161006 -> Latest versions of emissivities and intensities for CfA meeting
+
+older stuff:
+
 * atomic_data_v1_hpw -> HPW's calculations with uniform uncertainties
 * atomic_data_v2_gdz -> GDZ's calculations with non-uniform uncertainties (current)
 * chianti_errors_fe_13 -> GDZ's work on Fe XIII
