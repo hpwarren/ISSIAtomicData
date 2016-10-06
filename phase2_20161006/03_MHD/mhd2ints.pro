@@ -117,7 +117,7 @@ pro mhd2ints, ps=ps
 
   diff = min(abs(alog10(t) - 6.25), p)
 
-  hpw_setup_ps, ps=ps, w=10.0, h=6.0, /land, /color, file='mhd2ints.2'
+  hpw_setup_ps, ps=ps, w=10.0, h=4.0, /land, /color, file='mhd2ints.2'
   hpw_setup_xwindow, 1000, 600, 2
   hpw_thicken_lines
   linecolors
