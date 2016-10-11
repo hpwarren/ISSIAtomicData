@@ -1,3 +1,24 @@
+#### ISSIAtomicData/phase2_20161006/05_statistics
+
+The command that you want:
+
+```
+ source("FeXIII_laplace_example.R")
+```
+
+or
+
+```
+ source("FeXIII_laplace_example_jjc.R")
+```
+
+for Jessi's parallel version.
+
+
+These R routines illustrate how to compute the models for the observed and test intensities.  The
+setup file looks like this:
+
+```
 require(rhdf5)
 
 ## read the intensity file of interest
@@ -29,3 +50,4 @@ if (fname == "../02_test/test_intensities_fe_13.h5") {
     logds_model = NULL
     logn_model = NULL
 }
+```

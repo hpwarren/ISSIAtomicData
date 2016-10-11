@@ -19,10 +19,16 @@ for (kk in 1:npix) {
         postcovs[kk, ii, , ] <- solve(-optimout$hessian)
 
         if (ii == 1 || ii %% 25 == 0){
+            if(!is.null(logds_model) && !is.null(logn_model)) {
+                this_logds_model = logds_model[kk]
+                this_logn_model = logn_model[kk]
+            } else {
+                this_logds_model = NULL
+                this_logn_model = NULL
+            }
             print_results(postmodes[kk,ii,1], postmodes[kk,ii,2], ii, logn_grid, emissivity_grid,
-                          Iobs[kk,], sigmaI[kk,], logn_model=logn_model[kk],
-                          logds_model=logds_model[kk])
-            ## Sys.sleep(1)
+                          Iobs[kk,], sigmaI[kk,], logn_model=this_logn_model, 
+                          logds_model=this_logds_model)
         }
     }
     mean_logn = mean(postmodes[kk,,1])
