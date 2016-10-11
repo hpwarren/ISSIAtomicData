@@ -1,17 +1,31 @@
 
 #### ISSIAtomicData/phase2_20161006/02_test
 
+The file you want:
+
+```
+  test_intensities_fe_13.fits.h5
+```
+
+This file contains 1000 'fake' intensities with known density and path lengths. It was saved with
+
+```
+  nrl_save_hdf, logn=logn, logt_max=logt_max, emissivity=emissivity, wavelength=wavelength, $
+                intensities=intensities, intensities_error=intensities_error, $
+                n_intensities=n_intensities, $
+                time_stamp=time_stamp, logn_obs=logn_obs, ds_obs=ds_obs, $
+                file=intensity_file
+```								
+
+The rountines:
+
 * TEST_INTENSITIES_FE_13: This routine generates fake intensities using an assumed electron density
   and path length. Some nuances
 
-    - The emissivities computed 01_chianti_errors need some 'extra' factors (e.g., elemental
-      abundance, ionization fraction) to be useful for comparison with observations in absolute
-      units. They are added in here.
+    - We select random densities uniformly on the range 8.5 to 9.5.
 
-    - We select random densities uniformly on the range 8.5 to 11.0.
-
-    - We estimate the path length from an approximation derived from a steady, uniform heating model
-  	  (Martens et al. 2000, equation 24).
+    - We estimate the path length from a theoretical approximation derived from a steady, uniform
+  	  heating model (Martens et al. 2000, equation 24).
       \begin{equation}
         ds = \frac{2.56\times10^8}{P_0}
 		  \end{equation}
@@ -44,4 +58,5 @@
  Looping over all of the realizations of CHIANTI yields a distribution that looks like this.
 
 ![The distribution of inferred density and path lengths for a single set of input intensities. Note
- that 1-$\sigma$ errors have been added to the intensities.](fit_test_intensities_fe_13.jpg)
+ that normally distributed errors have been added to the
+ intensities.](fit_test_intensities_fe_13.jpg)

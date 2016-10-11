@@ -36,12 +36,12 @@
 ;            delta-lambda was 1 Angstrom, instead of 0.1 Angstrom !
 ;       V.4, 16 Mar 2016, GDZ, added the unperturbed case, stored in
 ;            the first array
+;       V.5, 11 Oct 2016, HPW, added multiplication by
+             abund_fe*this_ioneq*nH_ne/(4*!pi*density)
 ;
-;
-; VERSION     :   4
+; VERSION     :   5
 ;
 ;-
-
 
 pro calc_emiss_mc, sngl_ion, wvl_list, dl=dl, nsim=nsim, normal=normal, $
                    out_file=out_file
@@ -116,28 +116,52 @@ pro calc_emiss_mc, sngl_ion, wvl_list, dl=dl, nsim=nsim, normal=normal, $
     endfor
   endfor
 
-; --- pad trans to avoid variable length strings, which get truncated :(
+  ;; --- pad trans to avoid variable length strings, which get truncated :(
+  
   s = data.trans
   len = max(strlen(s))
   s = strpad(s, len, /after, fill=' ')
   data.trans = s
 
-; --- save as an IDL savefle:
+  ;; --- Multiply by the factors needed to get the units correct for the emissivity. In earlier
+  ;;     versions of the software this was done downstream but it is best done here.
+  
+  emissivity = data.em
+
+  read_ioneq, ioneq_file, logt, ioneq, ioneq_ref
+  this_ioneq = ioneq[*, iz-1, ion-1]
+  this_ioneq = interpol(this_ioneq, logt, logt_max)
+  nH_ne = (proton_dens(logt_max, /hydrogen))[0]
+  abund_fe = 10.0^(8.10 - 12.0) ;; coronal abundance for Fe
+
+  n_lines = (size(emissivity, /dim))[2]
+  n_sim = (size(emissivity, /dim))[0]
+  density = 10.0^logn
+  chianti_factor = abund_fe*this_ioneq*nH_ne/(4*!pi*density)
+  for i=0, n_sim-1 do begin
+    for j=0, n_lines-1 do begin
+      emissivity[i, *, j] *= chianti_factor
+    endfor
+  endfor
+
+  data.em = emissivity
+
+  ;; --- save output
   if n_elements(out_file) eq 0 then out_file=sngl_ion+'.monte_carlo'
   if keyword_set(normal) then out_file=out_file+'_normal'
 
+  ;; --- save as an IDL savefle:  
   save, data, logn, nsim, file=out_file+'_nsim='+trim(nsim)+'.save', /compress
 
-  emissivity = data.em
+  ;; --- save as an HDF file for use with R, no structures
   transition = data.trans
   wavelength = data.wvl
   time_stamp = systime(0)
-
+  
   nrl_save_hdf,  ioneq_file=ioneq_file, $
                  logn=logn, logt_max=logt_max, nsim=nsim, $
                  emissivity=emissivity, transition=transition, wavelength=wavelength, $
                  time_stamp=time_stamp, $
                  file=out_file+'_nsim='+trim(nsim)+'.h5'
-
 
 end

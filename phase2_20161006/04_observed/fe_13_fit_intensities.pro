@@ -46,32 +46,6 @@ pro fe_13_fit_intensities, ps=ps
                    file=file
 
   ;; -----------------------------------------------------------------------------------------------
-  ;; --- multiply emissivity by ioneq and other factors
-
-  sngl_ion = 'fe_13'
-  chianti_path = !xuvtop
-  chianti_path_ioneq = concat_dir(chianti_path,'ioneq')
-  ioneq_file = concat_dir(chianti_path_ioneq,'chianti.ioneq')
-  convertname, sngl_ion, iz, ion
-  read_ioneq, ioneq_file, logt, ioneq, ioneq_ref
-  this_ioneq = ioneq[*,iz-1,ion-1]
-  logt_max = ch_tmax(sngl_ion, /log)
-  diff = min(abs(logt_max - logt), p)
-  this_ioneq = interpol(this_ioneq, logt, logt_max)
-  nH_ne = (proton_dens(logt_max, /hydrogen))[0]
-  abund_fe = 10.0^(8.10 - 12.0)
-
-  n_lines = (size(emissivity, /dim))[2]
-  n_sim = (size(emissivity, /dim))[0]
-  density = 10.0^logn
-  chianti_factor = abund_fe*this_ioneq*nH_ne/(4*!pi*density)
-  for i=0, n_sim-1 do begin
-    for j=0, n_lines-1 do begin
-      emissivity[i, *, j] *= chianti_factor
-    endfor
-  endfor
-
-  ;; -----------------------------------------------------------------------------------------------
   ;; --- Fit with the perturbed atomic data
 
   n_chianti = (size(emissivity, /dim))[0]
@@ -82,7 +56,7 @@ pro fe_13_fit_intensities, ps=ps
     ints = intensities[n, *]
     err = intensities_error[n, *]
 
-    guess = [9.0, 9.0]
+    guess = [9.5, 9.0]
     fa = {ints: ints, err: err, emissivity: this_emissivity, logn: logn}
     fit = mpfit('fe_13_compute_deviates', guess, functargs=fa, /quiet, perror=perr, $
                 bestnorm=chi2)

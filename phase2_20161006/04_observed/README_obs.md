@@ -1,23 +1,17 @@
 #### ISSIAtomicData/phase2_20161006/04_observed
 
-Here we collect sets of observed intensities from an EIS observation of an active region
-(eis_l1_20130708_002042). Intensities for the the following Fe XIII lines are saved: 196.525,   200.021, 201.121, 202.044, 203.165, 203.826, 209.916.
+The file that you want:
 
-* fe_13_density.pro: This routine reads and organizes the intensities. Some nuances:
+```
+  eis_l1_20130708_002042.fe_density.h5  
+```
 
-    + 1000 sets of intensities and the corresponding uncertainties are saved.
+This file contains sets of observed intensities from an EIS observation of an active region
+(eis_l1_20130708_002042). Intensities for the the following Fe XIII lines are saved: 196.525,
+200.021, 201.121, 202.044, 203.165, 203.826, 209.916.
 
-    + The intensities are stored in ascending order of wavelength.
-
-    + The index variable saves the position of the intensities in the original raster. Additional   information is contained in the file fe_13_density.txt
-
-
-    + The default atomic data is used to compute densities from each of the density sensitive line ratios. The 209.916/202.044 is not sensitive to density so the observed and theoretical ratio for each observation is plotted.
-
-    ![Densities inferred from the observed intensities.](eis_l1_20130708_002042.fe_density.a.jpg)
-    ![Correlations among the observed densities.](eis_l1_20130708_002042.fe_density.b.jpg)
-
-    + The data are saved with the following call. Note that the emssivities are also saved in this file for completeness.
+ The data are saved with the following call. Note that the emssivities are also saved in this file
+ for completeness.
 
 ```
   nrl_save_hdf, intensities=intensities_out, intensities_error=intensities_error_out, $
@@ -28,8 +22,25 @@ Here we collect sets of observed intensities from an EIS observation of an activ
                 file=opf+'.h5'
 ```
 
+* fe_13_density.pro: This routine reads and organizes the intensities. Some nuances:
 
-* fe_13_fit_intensities.pro: This routine takes a single set of intensities and find the best-fit density and path length. For example,
+    + 1000 sets of intensities and the corresponding statistical uncertainties are saved.
+
+    + The intensities are stored in ascending order of wavelength.
+
+    + The index variable saves the position of the intensities in the original raster. Additional
+    information is contained in the file fe_13_density.txt
+
+    + The default atomic data is used to compute densities from each of the density sensitive line
+    ratios. The 209.916/202.044 is not sensitive to density so the observed and theoretical ratio
+    for each observation is plotted.
+
+    ![Densities inferred from the observed intensities.](eis_l1_20130708_002042.fe_density.a.jpg)
+    ![Correlations among the observed densities.](eis_l1_20130708_002042.fe_density.b.jpg)
+
+
+* fe_13_fit_intensities.pro: This routine takes a single set of intensities and find the best-fit
+  density and path length. For example,
 
 ```
  model log_n = 9.46 +- 0.008
@@ -45,6 +56,7 @@ model log_ds = 9.18 +- 0.018
   209.916    751.71    722.57     74.38      0.39       4.0
 ```
 
-Here is the result of using each of the 1000 realizations of CHIANTI to fit the single set of observations. 
+Here is the result of using each of the 1000 realizations of CHIANTI to fit the single set of
+observations.
 
   ![Distributions of density and path length.](fe_13_fit_intensities.jpg)

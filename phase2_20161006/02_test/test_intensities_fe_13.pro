@@ -1,7 +1,7 @@
 
 ;;
-;;
-;;
+;; Here we generate some fake intensities from an assumed density and a theoretical relationship
+;; between the density and the path length. 
 ;;
 
 pro test_intensities_fe_13
@@ -13,41 +13,17 @@ pro test_intensities_fe_13
   nrl_restore_hdf, logn=logn, logt_max=logt_max, emissivity=emissivity, wavelength=wavelength, $
                    file=chianti_file
 
-  ;; --- multiply by the factors needed to get the units correct for the emissivity
-
-  sngl_ion = 'fe_13'
-  chianti_path = !xuvtop
-  chianti_path_ioneq = concat_dir(chianti_path,'ioneq')
-  ioneq_file = concat_dir(chianti_path_ioneq,'chianti.ioneq')
-  convertname, sngl_ion, iz, ion
-  read_ioneq, ioneq_file, logt, ioneq, ioneq_ref
-  this_ioneq = ioneq[*, iz-1, ion-1]
-  logt_max = ch_tmax(sngl_ion, /log)
-  diff = min(abs(logt_max - logt), p)
-  this_ioneq = interpol(this_ioneq, logt, logt_max)
-  nH_ne = (proton_dens(logt_max, /hydrogen))[0]
-  abund_fe = 10.0^(8.10 - 12.0) ;; coronal abundance for Fe
-
-  n_lines = (size(emissivity, /dim))[2]
-  n_sim = (size(emissivity, /dim))[0]
-  density = 10.0^logn
-  chianti_factor = abund_fe*this_ioneq*nH_ne/(4*!pi*density)
-  for i=0, n_sim-1 do begin
-    for j=0, n_lines-1 do begin
-      emissivity[i, *, j] *= chianti_factor
-    endfor
-  endfor
-
   ;; --- select some random densities and estimate the intensities for all of the lines
 
   n_intensities = 1000
-  logn_obs = 8.5 + 2.5*randomu(seed, n_intensities)
-;;  logn_obs = logn_obs[sort(logn_obs)]
+  seed = 42L
+  logn_obs = 8.5 + 2.0*randomu(seed, n_intensities)
   p_obs = 2*!boltzmann*10.0^(logn_obs + logt_max)
 
-  exposure = 60.0
-  slit = 2
+  exposure = 60.0 ;; EIS exposure time in seconds, for eis_throughput
+  slit = 2 ;; EIS slit width in arcsecs, for eis_throughput
 
+  n_lines = n_elements(wavelength) 
   intensities = fltarr(n_intensities, n_lines)
   intensities_error = fltarr(n_intensities, n_lines)
   ds_obs = fltarr(n_intensities)
@@ -58,8 +34,8 @@ pro test_intensities_fe_13
     err = fltarr(n_lines)
     ints = fltarr(n_lines)
     for j=0, n_lines-1 do begin
-      emiss = interpol(emissivity[0, *, j], logn, logn_obs[i])
-      ints[j] = emiss*em ;; 0 is the default CHIANTI calculation
+      emiss = interpol(emissivity[0, *, j], logn, logn_obs[i]) ;; 0 is the default CHIANTI
+      ints[j] = emiss*em 
       eis = eis_throughput(wavelength[j], ints_erg=ints[j], exposure=exposure, slit=slit)
       err[j] = eis.ints_erg_err
     endfor
@@ -75,7 +51,6 @@ pro test_intensities_fe_13
   endfor
 
   intensity_file = 'test_intensities_fe_13.h5'
-
   time_stamp = systime(0)
 
   nrl_save_hdf, logn=logn, logt_max=logt_max, emissivity=emissivity, wavelength=wavelength, $

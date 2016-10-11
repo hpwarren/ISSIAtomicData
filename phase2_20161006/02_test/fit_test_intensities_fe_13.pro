@@ -37,7 +37,13 @@ end
 
 ;; #################################################################################################
 
-pro fit_test_intensities_fe_13, ps=ps
+;;
+;; Fit a *single* set of intensities with all of the realizations of the atomic data, plot the
+;; distribution of n and ds. Note that the single set of intensities is perturbed by a set of
+;; normally distributed random deviations.
+;;
+
+pro fit_test_intensities_fe_13, ps=ps, noerror=noerror
 
   intensity_file = 'test_intensities_fe_13.h5'
 
@@ -48,18 +54,20 @@ pro fit_test_intensities_fe_13, ps=ps
                    file=intensity_file
 
   ;; -----------------------------------------------------------------------------------------------
-  ;; --- fit with the default CHIANTI data
+  ;; --- select a set of intensities
 
   p = n_intensities/2
+  
   ints = reform(intensities[p, *])
   err = reform(intensities_error[p, *])
-  emissivity0 = reform(emissivity[0, *, *])
   logn_obs = logn_obs[p]
   ds_obs = alog10(ds_obs[p])
 
   ;; --- perturb the intensities
-  n_lines = n_elements(ints)
-  ints = ints + err*randomn(seed, n_lines)
+  if not(keyword_set(noerror)) then begin
+    n_lines = n_elements(ints)
+    ints = ints + err*randomn(seed, n_lines)
+  endif
 
   ;; -----------------------------------------------------------------------------------------------
   ;; --- Fit with the perturbed atomic data
@@ -70,14 +78,12 @@ pro fit_test_intensities_fe_13, ps=ps
 
     this_emissivity = reform(emissivity[n, *, *])
 
-    guess = [9.0, 9.0]
+    guess = [9.5, 9.5]
     fa = {ints: ints, err: err, emissivity: this_emissivity, logn: logn}
     fit = mpfit('fe_13_compute_deviates', guess, functargs=fa, /quiet, perror=perr, $
                 bestnorm=chi2)
 
     model = fe_13_compute_intensities( logn, this_emissivity, fit[0], fit[1])
-
-    model = fe_13_compute_intensities( logn, this_emissivity, logn_obs, ds_obs)
 
     print
     print, '  model log_n = '+trim(fit[0], '(f10.2)') + ' +- '+trim(perr[0], '(f10.3)') + $

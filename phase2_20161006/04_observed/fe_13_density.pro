@@ -93,6 +93,7 @@ pro fe_13_density, ps=ps, check=check
   ;; --- a quick check that we can recover the intensities correctly from the original files
 
   if keyword_set(check) then begin
+    print
     print, intensities_out[0, *], format='(7f10.2)'
     print, intensities_error_out[0, *], format='(7f10.2)'
     m = index_out[0]
