@@ -6,6 +6,14 @@ directories:
 
 * phase2_20161006 -> Latest versions of emissivities and intensities for CfA meeting
 
+see
+
+* phase2_20161006/01_chianti_errors -> the latest CHIANTI emissivities
+* phase2_20161006/02_test -> some test data
+* phase2_20161006/03_MHD -> some test data from a MHD simulation [in progress]
+* phase2_20161006/04_observed -> observed EIS intensities
+* phase2_20161006/05_statistics -> R routines for inferring densities 
+
 older stuff:
 
 * atomic_data_v1_hpw -> HPW's calculations with uniform uncertainties
