@@ -37,7 +37,7 @@
 ;       V.4, 16 Mar 2016, GDZ, added the unperturbed case, stored in
 ;            the first array
 ;       V.5, 11 Oct 2016, HPW, added multiplication by
-             abund_fe*this_ioneq*nH_ne/(4*!pi*density)
+;             abund_fe*this_ioneq*nH_ne/(4*!pi*density)
 ;
 ; VERSION     :   5
 ;

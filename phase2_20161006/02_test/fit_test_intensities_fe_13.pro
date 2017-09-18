@@ -56,15 +56,17 @@ pro fit_test_intensities_fe_13, ps=ps, noerror=noerror
   ;; -----------------------------------------------------------------------------------------------
   ;; --- select a set of intensities
 
-  p = n_intensities/2
-  
+  diff = min(abs(logn_obs - 9.9), p)
+    
   ints = reform(intensities[p, *])
   err = reform(intensities_error[p, *])
   logn_obs = logn_obs[p]
   ds_obs = alog10(ds_obs[p])
 
   ;; --- perturb the intensities
+  ints_saved = ints
   if not(keyword_set(noerror)) then begin
+    seed = 42
     n_lines = n_elements(ints)
     ints = ints + err*randomn(seed, n_lines)
   endif
@@ -81,7 +83,7 @@ pro fit_test_intensities_fe_13, ps=ps, noerror=noerror
     guess = [9.5, 9.5]
     fa = {ints: ints, err: err, emissivity: this_emissivity, logn: logn}
     fit = mpfit('fe_13_compute_deviates', guess, functargs=fa, /quiet, perror=perr, $
-                bestnorm=chi2)
+                bestnorm=chi2, dof=dof)
 
     model = fe_13_compute_intensities( logn, this_emissivity, fit[0], fit[1])
 
@@ -91,11 +93,13 @@ pro fit_test_intensities_fe_13, ps=ps, noerror=noerror
     print, ' model log_ds = '+trim(fit[1], '(f10.2)') + ' +- '+trim(perr[1], '(f10.3)') + $
            '  ['+trim(ds_obs,'(f10.2)')+']'           
     print, '         chi2 = '+trim(chi2, '(f10.1)')
-    print, 'Line', 'Imodel', 'Iobs', 'SigmaI', 'dI/Sigma', 'dI/I', format='(6a10)'
+    print, ' normalized chi2 = '+trim(chi2/dof, '(f10.1)')        
+    print, 'Line', 'Iobs', 'SigmaI', 'Imodel', 'dI/I', 'dI/Sigma', format='(6a10)'    
     for i=0, n_elements(model)-1 do begin
       var1 = abs(model[i]-ints[i])/err[i]
       var2 = 100*abs(model[i]-ints[i])/ints[i]
-      print, wavelength[i], model[i], ints[i], err[i], var1, var2, format='(f10.3, 4f10.2, f10.1)'
+      ;; print, wavelength[i], model[i], ints[i], err[i], var1, var2, format='(f10.3, 4f10.2, f10.1)'
+      print, wavelength[i],  ints[i], err[i], model[i], var2, var1, format='(f10.3, 4f10.1, f10.1)'
     endfor
 
     res[n, *] = [fit[0], fit[1], chi2]
@@ -105,31 +109,35 @@ pro fit_test_intensities_fe_13, ps=ps, noerror=noerror
   opf = str_replace(intensity_file, '.h5', '.fits.h5')
   nrl_save_hdf, res=res, file=opf
 
-  hpw_setup_ps, ps=ps, w=10.0, h=6.0, /land, file='fit_test_intensities_fe_13'
-  hpw_setup_xwindow, 1000, 600
+  ;; ------------------------------------------------------------------------------------------
+
+  hpw_setup_ps, ps=ps, w=6.0, h=7.0, file='fit_test_intensities_fe_13'
+  hpw_setup_xwindow, 500, 1000
   hpw_thicken_lines
-  !p.multi = [0, 2, 1]
+  @hpw_setup_symbols
+  !p.multi = [0, 1, 2]
 
   bs = 0.03
   hist = histogram(res[*,0], binsize=bs, locations=xhist)
   xhist += bs/2.
   plot, xhist, hist, psym=10, $
         xtitle='Inferred Density (log cm!a-3!n)'
-  plots, logn_obs, !y.crange, linestyle=2
-  plots, median(res[*,0]), !y.crange, thick=3
 
-  ssw_legend, ['Input', 'Median'], linestyle=[0,2], box=0, /right, $
-              spacing=1.5, pspacing=1.5
+  ssw_legend, ['mean = ' + trim(mean(res[*,0]), '(f10.2)'), $
+               s_sigma + ' = ' +trim(stddev(res[*,0]), '(f10.2)')], box=0, spacing=1.5
 
   bs = 0.03
   hist = histogram(res[*,1], binsize=bs, locations=xhist)
   xhist += bs/2.
   plot, xhist, hist, psym=10, $
         xtitle='Inferred Path Length (log cm)'
-  plots, ds_obs, !y.crange, linestyle=2
-  plots, median(res[*,1]), !y.crange, thick=3
+
+  ssw_legend, ['mean = ' + trim(mean(res[*,1]), '(f10.2)'), $
+               s_sigma + ' = ' +trim(stddev(res[*,1]), '(f10.2)')], box=0, spacing=1.5  
 
   hpw_setup_ps, ps=ps, /close
   hpw_clean_display
+
+  print, res[*, 2]
 
 end

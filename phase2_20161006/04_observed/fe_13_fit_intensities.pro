@@ -59,24 +59,28 @@ pro fe_13_fit_intensities, ps=ps
     guess = [9.5, 9.0]
     fa = {ints: ints, err: err, emissivity: this_emissivity, logn: logn}
     fit = mpfit('fe_13_compute_deviates', guess, functargs=fa, /quiet, perror=perr, $
-                bestnorm=chi2)
+                bestnorm=chi2, dof=dof)
 
     model = fe_13_compute_intensities( logn, this_emissivity, fit[0], fit[1])
 
     print
-    print, '  model log_n = '+trim(fit[0], '(f10.2)') + ' +- '+trim(perr[0], '(f10.3)')
-    print, ' model log_ds = '+trim(fit[1], '(f10.2)') + ' +- '+trim(perr[1], '(f10.3)')
-    print, '         chi2 = '+trim(chi2, '(f10.1)')
-    print, 'Line', 'Imodel', 'Iobs', 'SigmaI', 'dI/Sigma', 'dI/I', format='(6a10)'
+    print, '     model log_n = '+trim(fit[0], '(f10.2)') + ' +- '+trim(perr[0], '(f10.3)')
+    print, '    model log_ds = '+trim(fit[1], '(f10.2)') + ' +- '+trim(perr[1], '(f10.3)')
+    print, '            chi2 = '+trim(chi2, '(f10.1)')
+    print, ' normalized chi2 = '+trim(chi2/dof, '(f10.1)')    
+    print, 'Line', 'Iobs', 'SigmaI', 'Imodel', 'dI/I', 'dI/Sigma', format='(6a10)'
     for i=0, n_elements(model)-1 do begin
       var1 = abs(model[i]-ints[i])/err[i]
       var2 = 100*abs(model[i]-ints[i])/ints[i]
-      print, wavelength[i], model[i], ints[i], err[i], var1, var2, format='(f10.3, 4f10.2, f10.1)'
+      print, wavelength[i],  ints[i], err[i], model[i], var2, var1, format='(f10.3, 4f10.1, f10.1)'
     endfor
 
     res[n, *] = [fit[0], fit[1], chi2]
     if n eq 0 then pause
+    if index[n] eq 804 then pause
   endfor
+
+  stop
 
   ;; ------------------------------------------------------------------------------------------
 
