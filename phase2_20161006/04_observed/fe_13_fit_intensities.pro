@@ -48,24 +48,31 @@ pro fe_13_fit_intensities, ps=ps
   ;; -----------------------------------------------------------------------------------------------
   ;; --- Fit with the perturbed atomic data
 
+  diff = min(abs(intensities[*,0] - 1473.1), p)
+
+  n_pixel = 216
+  ints = intensities[n_pixel, *]
+  err = intensities_error[n_pixel, *]  
+
   n_chianti = (size(emissivity, /dim))[0]
   res = fltarr(n_chianti, 3)
+  perr = fltarr(n_chianti, 2)
   for n=0, n_chianti-1 do begin
 
     this_emissivity = reform(emissivity[n, *, *])
-    ints = intensities[n, *]
-    err = intensities_error[n, *]
 
     guess = [9.5, 9.0]
     fa = {ints: ints, err: err, emissivity: this_emissivity, logn: logn}
-    fit = mpfit('fe_13_compute_deviates', guess, functargs=fa, /quiet, perror=perr, $
+    fit = mpfit('fe_13_compute_deviates', guess, functargs=fa, /quiet, perror=fit_perr, $
                 bestnorm=chi2, dof=dof)
 
     model = fe_13_compute_intensities( logn, this_emissivity, fit[0], fit[1])
 
     print
-    print, '     model log_n = '+trim(fit[0], '(f10.2)') + ' +- '+trim(perr[0], '(f10.3)')
-    print, '    model log_ds = '+trim(fit[1], '(f10.2)') + ' +- '+trim(perr[1], '(f10.3)')
+    print, '       n chianti = ' + trim(n)
+    print, '         n pixel = ' + trim(n_pixel)
+    print, '     model log_n = '+trim(fit[0], '(f10.2)') + ' +- '+trim(fit_perr[0], '(f10.3)')
+    print, '    model log_ds = '+trim(fit[1], '(f10.2)') + ' +- '+trim(fit_perr[1], '(f10.3)')
     print, '            chi2 = '+trim(chi2, '(f10.1)')
     print, ' normalized chi2 = '+trim(chi2/dof, '(f10.1)')    
     print, 'Line', 'Iobs', 'SigmaI', 'Imodel', 'dI/I', 'dI/Sigma', format='(6a10)'
@@ -76,11 +83,24 @@ pro fe_13_fit_intensities, ps=ps
     endfor
 
     res[n, *] = [fit[0], fit[1], chi2]
+    perr[n, *] = [fit_perr[0], fit_perr[1]]
+
     if n eq 0 then pause
-    if index[n] eq 804 then pause
+    if n eq 471 then pause
+    if n eq 216 then pause
+    
   endfor
 
-  stop
+  med_log_n = median(res[*,0])
+  std_log_n = stddev(res[*,0])
+  med_log_ds = median(res[*,1])
+  std_log_ds = stddev(res[*,1])  
+
+  print, res[0,0], perr[0,0], format='(2f10.3)'
+  print, med_log_n, std_log_n, format='(2f10.3)'
+  print
+  print, res[0,1], perr[0,1], format='(2f10.3)'
+  print, med_log_ds, std_log_ds, format='(2f10.3)'
 
   ;; ------------------------------------------------------------------------------------------
 
@@ -90,11 +110,10 @@ pro fe_13_fit_intensities, ps=ps
   !p.multi = [0, 2, 1]
 
   bs = 0.05
-  hist = histogram(res[*,0], binsize=bs, locations=xhist)
+  hist = histogram(res[*, 0], binsize=bs, locations=xhist)
   xhist += bs/2.
   plot, xhist, hist, psym=10, $
         xtitle='Inferred Density (log cm!a-3!n)'
-  plots, median(res[*,0]), !y.crange, thick=3
 
   ssw_legend, ['Input', 'Median'], linestyle=[0,2], box=0, /right, $
               spacing=1.5, pspacing=1.5
@@ -104,7 +123,6 @@ pro fe_13_fit_intensities, ps=ps
   xhist += bs/2.
   plot, xhist, hist, psym=10, $
         xtitle='Inferred Path Length (log cm)'
-  plots, median(res[*,1]), !y.crange, thick=3
 
   hpw_setup_ps, ps=ps, /close
   hpw_clean_display
