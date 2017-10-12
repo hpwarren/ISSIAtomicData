@@ -7,6 +7,8 @@ logn_grid <- h5read(fname, "logn")
 wavelength <- h5read(fname, "wavelength")
 
 dims <- dim(emissivity_grid)
+print, dims
+
 nprior <- dims[1]
 ngrid <- dims[2]
 nlines <- dims[3]

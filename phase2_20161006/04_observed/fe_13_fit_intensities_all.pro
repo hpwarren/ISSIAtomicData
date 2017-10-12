@@ -35,7 +35,7 @@ end
 
 ;; #################################################################################################
 
-pro fe_13_fit_intensities, ps=ps
+pro fe_13_fit_intensities_all
 
   file = 'eis_l1_20130708_002042.fe_density.h5'
 
@@ -48,15 +48,24 @@ pro fe_13_fit_intensities, ps=ps
   ;; -----------------------------------------------------------------------------------------------
   ;; --- Fit with the perturbed atomic data
 
-  ints = intensities[n_pixel, *]
-  err = intensities_error[n_pixel, *]  
+  n_intensities = (size(intensities))[1]
 
-  n_chianti = (size(emissivity, /dim))[0]
-  res = fltarr(n_chianti, 3)
-  perr = fltarr(n_chianti, 2)
-  for n=0, n_chianti-1 do begin
+  fit_ne = fltarr(n_intensities)
+  fit_ne_err = fltarr(n_intensities)
+  fit_ds = fltarr(n_intensities)
+  fit_ds_err = fltarr(n_intensities)
+  fit_chi2 = fltarr(n_intensities)
+  ints_model = fltarr(n_intensities, n_lines)
+  text = list()
+  text.add, '# least-squares fits to the observed intensities'
+  text.add, '# using the default CHIANTI atomic data'
+  text.add, '# '
+  for n=0, n_intensities-1 do begin
 
-    this_emissivity = reform(emissivity[n, *, *])
+    ints = intensities[n, *]
+    err = intensities_error[n, *]
+
+    this_emissivity = reform(emissivity[0, *, *]) ;; use default
 
     guess = [9.5, 9.0]
     fa = {ints: ints, err: err, emissivity: this_emissivity, logn: logn}
@@ -65,59 +74,41 @@ pro fe_13_fit_intensities, ps=ps
 
     model = fe_13_compute_intensities( logn, this_emissivity, fit[0], fit[1])
 
-    print
-    print, '       n chianti = ' + trim(n)
-    print, '         n pixel = ' + trim(n_pixel)
-    print, '     model log_n = '+trim(fit[0], '(f10.2)') + ' +- '+trim(fit_perr[0], '(f10.3)')
-    print, '    model log_ds = '+trim(fit[1], '(f10.2)') + ' +- '+trim(fit_perr[1], '(f10.3)')
-    print, '            chi2 = '+trim(chi2, '(f10.1)')
-    print, ' normalized chi2 = '+trim(chi2/dof, '(f10.1)')    
-    print, 'Line', 'Iobs', 'SigmaI', 'Imodel', 'dI/I', 'dI/Sigma', format='(6a10)'
+    text.add, ''
+    text.add, '         n pixel = ' + trim(n)
+    text.add, '     model log_n = '+trim(fit[0], '(f10.2)') + ' +- '+trim(fit_perr[0], '(f10.3)')
+    text.add, '    model log_ds = '+trim(fit[1], '(f10.2)') + ' +- '+trim(fit_perr[1], '(f10.3)')
+    text.add, '            chi2 = '+trim(chi2, '(f10.1)')
+    text.add, ' normalized chi2 = '+trim(chi2/dof, '(f10.1)')    
+    text.add, string('Line', 'Iobs', 'SigmaI', 'Imodel', 'dI/I', 'dI/Sigma', format='(6a10)')
     for i=0, n_elements(model)-1 do begin
       var1 = abs(model[i]-ints[i])/err[i]
       var2 = 100*abs(model[i]-ints[i])/ints[i]
-      print, wavelength[i],  ints[i], err[i], model[i], var2, var1, format='(f10.3, 4f10.1, f10.1)'
+      text.add, string(wavelength[i],  ints[i], err[i], model[i], var2, var1, $
+                       format='(f10.3, 4f10.1, f10.1)')
     endfor
 
-    res[n, *] = [fit[0], fit[1], chi2]
-    perr[n, *] = [fit_perr[0], fit_perr[1]]
+    fit_ne[n] = fit[0]
+    fit_ne_err[n] = fit_perr[0]
+    fit_ds[n] = fit[1]
+    fit_ds_err[n] = fit_perr[1]
+    fit_chi2[n] = chi2
+    ints_model[n, *] = model
     
   endfor
 
-  med_log_n = median(res[*,0])
-  std_log_n = stddev(res[*,0])
-  med_log_ds = median(res[*,1])
-  std_log_ds = stddev(res[*,1])  
-
-  print, res[0,0], perr[0,0], format='(2f10.3)'
-  print, med_log_n, std_log_n, format='(2f10.3)'
+  opf = str_replace(file, '.h5', '.default_fits.txt')
+  openw, unit, opf, /get
+  for i=0, n_elements(text)-1 do printf, unit, text[i]
+  free_lun, unit
   print
-  print, res[0,1], perr[0,1], format='(2f10.3)'
-  print, med_log_ds, std_log_ds, format='(2f10.3)'
-
-  ;; ------------------------------------------------------------------------------------------
-
-  hpw_setup_ps, ps=ps, w=10.0, h=6.0, /land, file='fe_13_fit_intensities'
-  hpw_setup_xwindow, 1000, 600
-  hpw_thicken_lines
-  !p.multi = [0, 2, 1]
-
-  bs = 0.05
-  hist = histogram(res[*, 0], binsize=bs, locations=xhist)
-  xhist += bs/2.
-  plot, xhist, hist, psym=10, $
-        xtitle='Inferred Density (log cm!a-3!n)'
-
-  ssw_legend, ['Input', 'Median'], linestyle=[0,2], box=0, /right, $
-              spacing=1.5, pspacing=1.5
-
-  bs = 0.05
-  hist = histogram(res[*,1], binsize=bs, locations=xhist)
-  xhist += bs/2.
-  plot, xhist, hist, psym=10, $
-        xtitle='Inferred Path Length (log cm)'
-
-  hpw_setup_ps, ps=ps, /close
-  hpw_clean_display
+  print, 'saved to ' + opf  
+  
+  opf = str_replace(file, '.h5', '.default_fits.h5')
+  print
+  print, 'saved to ' + opf
+  nrl_save_hdf, fit_ne=fit_ne, fit_ds=fit_ds, fit_chi2=fit_chi2, $
+                fit_ne_err=fit_ne_err, fit_ds_err=fit_ds_err, ints_model=ints_model, $
+                file=opf
 
 end
