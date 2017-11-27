@@ -1,3 +1,16 @@
+# do not edit -- automatically generated Mon Nov 27 11:40:28 2017 from /susfu/kashyap/solar/ISSI/Capella_O7/binned_18t23.pro
+# 
+# events in wavelength region [18.00,23.00] Ang
+# 
+BACKSCAL = 15.6250
+#columns are:
+#WLOW: wavelength grid bin lower bound [Angstrom]
+#WHIGH: wavelength grid bin upper bound [Angstrom]
+#SRCCT: counts in bin [ct]
+#BKGCT: background counts in bin [ct]
+#EA{p|n}_OBSID: effective area for each ObsID [cm^2 ksec]
+WLOW	WHIGH	SRCCT	BKGCT	EAp_00055	EAp_01225	EAp_08319	EAp_18358	EAp_18360	EAp_18362
+N	N	N	N	N	N	N	N	N
 18.0000	18.0050	15	2	1599.6623	184.10164	752.12394	18.044213	18.499426	17.707684
 18.0050	18.0100	10	1	1600.4309	184.19210	760.94421	18.699139	19.162347	18.351471
 18.0100	18.0150	8	0	1602.0374	184.39608	776.54829	19.905642	20.384566	19.536918
