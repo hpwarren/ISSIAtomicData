@@ -48,6 +48,7 @@ pro fe_13_fit_intensities, ps=ps
   ;; -----------------------------------------------------------------------------------------------
   ;; --- Fit with the perturbed atomic data
 
+  n_pixel = 217 - 1
   ints = intensities[n_pixel, *]
   err = intensities_error[n_pixel, *]  
 
